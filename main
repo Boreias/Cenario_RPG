@@ -1,0 +1,151 @@
+import pygame
+from personagem import Personagem
+from RPG import RPG
+
+# definindo cores
+PRETO = (0, 0, 0)
+BRANCO = (255, 255, 255)
+
+# iniciando pygame
+pygame.init()
+
+rpg = RPG()
+
+# resolução da tela
+resolucao = largura, altura = (1800, 1000)
+screen = pygame.display.set_mode(resolucao)
+font = pygame.font.SysFont(None, 55)# carregando fonte
+
+pygame.display.set_caption('RPG')
+clock = pygame.time.Clock()
+fps = 30
+
+
+# retangulos
+retangulo1 = pygame.rect.Rect(0, 0, 100, altura)
+retangulo2 = pygame.rect.Rect(0, 0, largura, 100)
+
+
+# tuplas
+letras = ('A','B','C','D','E','F','G','H','I','J',
+          'K','L','M','N','O','P', 'Q', 'R', 'S',
+          'T', 'U', 'V', 'W', 'X', 'Y', 'Z')
+numeros = ('1','2','3','4','5','6','7','8', '9')
+
+
+# preenchendo o fundo com branco
+screen.fill(PRETO)
+
+# cria o mapa
+rpg.cria_mapa()
+
+
+# personagens
+
+# Quantidade de personagens
+
+quant_personagens = int(input('Digite um número de 1 a 20 referente a quantidade personagens: '))
+
+for i in range(quant_personagens):
+    rpg.cria_personagem()
+
+
+def posicoes_grid(letras, numeros): # adicionando orientações do grid
+    marcador_letras = 0
+    posicao_letras = [136,36]
+    marcador_numeros = 0
+    posicao_numeros = [36,136]
+    while posicao_letras[0] < largura:
+        letra = font.render(letras[marcador_letras], True, PRETO)
+        screen.blit(letra, posicao_letras)
+        marcador_letras += 1
+        posicao_letras[0] += 100
+    while posicao_numeros[1] < altura:
+        numero = font.render(numeros[marcador_numeros], True, PRETO)
+        screen.blit(numero, posicao_numeros)
+        marcador_numeros += 1
+        posicao_numeros[1] += 100
+
+
+def grid(): # desenha o grid
+    lista_inicio = [100,100]
+    lista_x = [100, altura] # ajustar de acordo com a resolução
+    lista_y = [largura, 100] # ajustar de acordo com a resolução
+    while lista_inicio[0] <= largura: # ajustar de acordo com a resolução
+        pygame.draw.line(screen, PRETO, lista_inicio, lista_x, 1)
+        lista_inicio[0] += 100
+        lista_x[0] += 100
+    lista_inicio[0] = 100
+    while lista_inicio[1] <= altura: # ajustar de acordo com a resolução
+        pygame.draw.line(screen, PRETO, lista_inicio, lista_y, 1)
+        lista_inicio[1] += 100
+        lista_y[1] += 100
+
+
+def draw():
+    screen.fill(PRETO)
+    screen.blit(rpg.get_mapa(), rpg.get_mapa_posicao())
+    grid()
+
+    for i in range(len(rpg.lista_personagens) - 1, -1, -1):
+        screen.blit(rpg.mostra_personagem(i), rpg.mostra_posicao(i))
+
+    pygame.draw.rect(screen, BRANCO, retangulo1)
+    pygame.draw.rect(screen, BRANCO, retangulo2)
+    posicoes_grid(letras, numeros)
+        
+
+loop = True
+
+while loop:
+    clock.tick(fps)
+    
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            loop = False
+
+        elif event.type == pygame.K_RETURN:
+            rpg.cria_personagem()
+
+        elif event.type == pygame.K_DELETE:
+            rpg.deletar_personagem()
+
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_w:
+                rpg.movimentar_W()
+                
+            if event.key == pygame.K_a:
+                rpg.movimentar_A()
+                
+            if event.key == pygame.K_d:
+                rpg.movimentar_D()
+                
+            if event.key == pygame.K_s:
+                rpg.movimentar_S()
+                
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                for i in range(quant_personagens):
+                    if rpg.colisao(i, event):
+                        mouse_x, mouse_y = event.pos
+                        offset_x, offset_y = rpg.clicar_mouse(i, mouse_x, mouse_y)
+                
+
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1:
+                for i in range(quant_personagens):
+                    rpg.lista_personagens[i].parar_arrastar()
+                    rpg.lista_personagens[i].parar_clicar()
+                
+
+        elif event.type == pygame.MOUSEMOTION:
+            for i in range(quant_personagens):
+                if rpg.teste_movimentar_mouse(i):
+                    mouse_x, mouse_y = event.pos
+                    rpg.movimentar_mouse(i, offset_x, offset_y, mouse_x, mouse_y)
+
+
+    draw()    
+    pygame.display.flip()
+    
+pygame.quit()
