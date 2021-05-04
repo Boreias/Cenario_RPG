@@ -1,0 +1,38 @@
+import pygame
+
+class Background:
+    def __init__(self):
+        self.image = ''
+        self.image_rect = (0,0)
+
+    def set_imagem(self):
+            while True:
+                try:
+                    pergunta = input('Deseja utilizar um mapa específico?(Sim / Não)').upper()
+                    if 'S' in pergunta:
+                        pergunta2 = input('Gostara de utilizar uma resolução específica para o mapa? (Sim / Não)').upper()
+                        imagem = input('Digite o nome da imagem e o formato: ')
+                        self.image = pygame.image.load('mapas/' + imagem)
+                        if 'S' in pergunta2:
+                            escala_mapa = [int(w) for w in input('Digite a resolução desejada, utilizando " " como separador: ').split()]
+                            self.image = pygame.transform.scale(self.image, escala_mapa)
+                        self.image_rect = self.image.get_rect()
+                        break
+                    else:
+                        self.image = pygame.image.load('mapas/Branco.png')
+                        self.image_rect = self.image.get_rect()
+                        break
+                except:
+                    print('Imagem não encontrada, favor conferir o nome e o formato da imagem')
+        
+    def mover_W(self):
+        self.image_rect[1] += 100
+
+    def mover_S(self):
+        self.image_rect[1] -= 100
+
+    def mover_A(self):
+        self.image_rect[0] += 100
+
+    def mover_D(self):
+        self.image_rect[0] -= 100
