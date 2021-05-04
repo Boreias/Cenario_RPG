@@ -1,0 +1,105 @@
+import pygame
+
+
+class Personagem:
+    def __init__(self):
+        self.__nome = ''
+        self.__vida = 1
+        self.__local = ''
+        self.__tamanho = ''
+        self.__imagem = ''
+        self.__pos = ''
+        self.__draging = False
+        self.__lista_tamanhos = ['PEQUENO', 'MEDIO', 'GRANDE', 'ENORME', 'COLOSSAL']
+        self.__direcao = 'S'
+        self.__dicio_direcoes = {'N':{'S':180, 'L':-90, 'O':90},
+                                 'S':{'N':180, 'L':90, 'O':-90},
+                                 'L':{'N':90, 'S':-90, 'O':180},
+                                 'O':{'N':-90, 'S':90, 'L':180}}
+
+    def set_nome(self):
+        self.__nome = input('Digite o nome do personagem: ')
+
+    def set_vida(self):
+        self.__vida = int(input('Digite os pontos de vida do personagem: '))
+
+    def set_tamanho(self):
+        while True:
+            self.__tamanho = input('Digite o tamanho do personagem: ').upper()
+            if self.__tamanho in self.__lista_tamanhos:
+                break
+            else:
+                print('Tamanho não encontrado, favor conferir o valor de entrada')
+
+    def set_imagem(self, x, y):
+        while True:
+            try:
+                self.__local = input('Digite a raça e classe do personagem: ')
+                self.__imagem = pygame.image.load('tokens/' + self.__local + '.png')
+                if self.__tamanho == 'GRANDE':
+                    self.__imagem = pygame.transform.scale(self.__imagem, (200, 200))
+                elif self.__tamanho == 'ENORME':
+                    self.__imagem = pygame.transform.scale(self.__imagem, (300, 300))
+                elif self.__tamanho == 'COLOSSAL':
+                    self.__imagem = pygame.transform.scale(self.__imagem, (500, 500))
+                else:
+                    self.__imagem = pygame.transform.scale(self.__imagem, (100, 100))
+                self.__pos = self.__imagem.get_rect()
+                self.__pos[0] = x
+                self.__pos[1] = y
+                break
+            except:
+                print('Informações não encontradas, favor conferir se digitou corretamente.')
+
+    def get_pos(self):
+        return self.__pos
+
+    def get_nome(self):
+        return self.__nome
+
+    def get_imagem(self):
+        return self.__imagem
+
+    def get_xy(self):
+        return self.__pos[:2]
+
+    def get_draging(self):
+        return self.__draging
+
+    def get_W(self):
+        self.__pos[1] += 100
+
+    def get_S(self):
+        self.__pos[1] -= 100
+
+    def get_A(self):
+        self.__pos[0] += 100
+
+    def get_D(self):
+        self.__pos[0] -= 100
+
+    def arrastar(self):
+        self.__draging = True
+
+    def parar_arrastar(self):
+        self.__draging = False
+
+    def parar_clicar(self):
+        self.__pos[0] = ((self.__pos[0] + 60) // 100) * 100
+        self.__pos[1] = ((self.__pos[1] + 60) // 100) * 100
+
+    def movimentar(self, offset_x, offset_y, mouse_x, mouse_y):
+        if mouse_x + offset_x > self.__pos[0] and not self.__direcao == 'L':
+            self.__imagem = pygame.transform.rotate(self.__imagem, self.__dicio_direcoes[self.__direcao]['L'])
+            self.__direcao = 'L'
+        elif mouse_x + offset_x < self.__pos[0] and not self.__direcao == 'O':
+            self.__imagem = pygame.transform.rotate(self.__imagem, self.__dicio_direcoes[self.__direcao]['O'])
+            self.__direcao = 'O'
+        elif mouse_y + offset_y > self.__pos[1] and not self.__direcao == 'S':
+            self.__imagem = pygame.transform.rotate(self.__imagem, self.__dicio_direcoes[self.__direcao]['S'])
+            self.__direcao = 'S'
+        elif mouse_y + offset_y < self.__pos[1] and not self.__direcao == 'N':
+            self.__imagem = pygame.transform.rotate(self.__imagem, self.__dicio_direcoes[self.__direcao]['N'])
+            self.__direcao = 'N'
+        self.__pos[0] = mouse_x + offset_x
+        self.__pos[1] = mouse_y + offset_y
