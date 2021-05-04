@@ -1,0 +1,92 @@
+import pygame
+from personagem import Personagem
+from bg import Background
+
+class RPG:
+    def __init__(self):
+        self.__x = 100
+        self.__y = 100
+        self.lista_personagens = []
+        self.dicio_personagens = dict()
+        self.mapa = ''
+        # self.lista_imagens = []
+        # self.lista_pos_personagens = []
+
+    def cria_personagem(self):
+        personagem = Personagem()
+        personagem.set_nome()
+        #personagem.set_vida()
+        personagem.set_tamanho()
+        personagem.set_imagem(self.__x, self.__y)
+        self.lista_personagens.append(personagem)
+        # self.lista_pos_personagens.append(personagem.get_pos())
+        # self.lista_imagens.append(personagem.get_imagem())
+        self.dicio_personagens[personagem.get_nome] = personagem
+        self.__y += 100
+        if self.__y > 900:
+            self.__y = 100
+            self.__x += 100
+        
+    def cria_mapa(self):
+        self.mapa = Background()
+        self.mapa.set_imagem()
+
+    def get_mapa(self):
+        return self.mapa.image
+
+    def get_mapa_posicao(self):
+        return self.mapa.image_rect[:2]
+        
+    def mostra_personagem(self, i):
+        return self.lista_personagens[i].get_imagem()
+
+    def mostra_posicao(self, i):
+        return self.lista_personagens[i].get_xy()
+    
+    def movimentar_W(self):
+        self.mapa.mover_W()
+        for i in range(len(self.lista_personagens)):
+            self.lista_personagens[i].get_W()
+
+    def movimentar_S(self):
+        self.mapa.mover_S()
+        for i in range(len(self.lista_personagens)):
+            self.lista_personagens[i].get_S()
+        
+    def movimentar_A(self):
+        self.mapa.mover_A()
+        for i in range(len(self.lista_personagens)):
+            self.lista_personagens[i].get_A()
+
+    def movimentar_D(self):
+        self.mapa.mover_D()
+        for i in range(len(self.lista_personagens)):
+            self.lista_personagens[i].get_D()
+
+    def colisao(self, i, event):
+        return self.lista_personagens[i].get_pos().collidepoint(event.pos)
+
+    def clicar_mouse(self, i, mouse_x, mouse_y):
+        self.lista_personagens[i].arrastar()
+        offset_x = self.lista_personagens[i].get_xy()[0] - mouse_x
+        offset_y = self.lista_personagens[i].get_xy()[1] - mouse_y
+        return offset_x, offset_y
+
+    def parar_clicar_mouse(self, i):
+        self.lista_personagens[i].parar_arrastar()
+        self.lista_personagens[i].parar_clicar()
+
+    def teste_movimentar_mouse(self, i):
+        return self.lista_personagens[i].get_draging()
+
+    def movimentar_mouse(self, i, offset_x, offset_y, mouse_x, mouse_y):
+        self.lista_personagens[i].movimentar(offset_x, offset_y, mouse_x, mouse_y)
+
+    def deletar_personagem(self):
+        while True:
+            nome = input('Digite o nome do personagem: ')
+            if nome in self.dicio_personagens.keys():
+                self.lista_personagens.remove(self.dicio_personagens[nome])
+                del self.dicio_personagens[nome]
+                break
+                
